@@ -1,111 +1,114 @@
-import { languages } from '../languagesData';
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react'
+import { languages } from '../languagesData'
 
 interface TranslatorAppProps {
-  onClose: () => void;
+  onClose: () => void
 }
 
 const TranslatorApp: React.FC<TranslatorAppProps> = ({ onClose }) => {
-  const [selectedLanguageFrom, setSelectedLanguageFrom] = useState<string>('en');
-  const [selectedLanguageTo, setSelectedLanguageTo] = useState<string>('en');
-  const [showLanguages, setShowLanguages] = useState<boolean>(false);
-  const [currentLanguageSelection, setCurrentLanguageSelection] = useState<'from' | 'to' | null>(null);
-  const [inputText, setInputText] = useState<string>('');
-  const [translatedText, setTranslatedText] = useState<string>('');
-  const [charCount, setCharCount] = useState<number>(0);
+  const [selectedLanguageFrom, setSelectedLanguageFrom] = useState<string>('en')
+  const [selectedLanguageTo, setSelectedLanguageTo] = useState<string>('en')
+  const [showLanguages, setShowLanguages] = useState<boolean>(false)
+  const [currentLanguageSelection, setCurrentLanguageSelection] = useState<'from' | 'to' | null>(null)
+  const [inputText, setInputText] = useState<string>('')
+  const [translatedText, setTranslatedText] = useState<string>('')
+  const [charCount, setCharCount] = useState<number>(0)
 
-  const maxChars = 200;
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const maxChars = 200
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const handleClickOutside = useCallback((e: MouseEvent) => {
+  const getLanguageName = (code: keyof typeof languages | string): string => {
+    return languages[code as keyof typeof languages] ?? code.toUpperCase()
+  }
+
+  const handleClickOutside = (e: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-      setShowLanguages(false);
+      setShowLanguages(false)
     }
-  }, []);
+  }
 
   useEffect(() => {
     if (showLanguages) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside)
     } else {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showLanguages, handleClickOutside]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showLanguages])
 
   const handleLanguageClick = (type: 'from' | 'to') => {
-    setCurrentLanguageSelection(type);
-    setShowLanguages(true);
-  };
+    setCurrentLanguageSelection(type)
+    setShowLanguages(true)
+  }
 
   const handleLanguagesSelect = (languageCode: string) => {
     if (currentLanguageSelection === 'from') {
-      setSelectedLanguageFrom(languageCode);
+      setSelectedLanguageFrom(languageCode)
     } else if (currentLanguageSelection === 'to') {
-      setSelectedLanguageTo(languageCode);
+      setSelectedLanguageTo(languageCode)
     }
-    setShowLanguages(false);
-  };
+    setShowLanguages(false)
+  }
 
   const handleSwapLanguages = () => {
-    setSelectedLanguageFrom(selectedLanguageTo);
-    setSelectedLanguageTo(selectedLanguageFrom);
-  };
+    setSelectedLanguageFrom(selectedLanguageTo)
+    setSelectedLanguageTo(selectedLanguageFrom)
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+    const value = e.target.value
     if (value.length <= maxChars) {
-      setInputText(value);
-      setCharCount(value.length);
+      setInputText(value)
+      setCharCount(value.length)
     }
-  };
+  }
 
   const handleTranslate = async () => {
     if (!inputText.trim()) {
-      setTranslatedText('');
-      return;
+      setTranslatedText('')
+      return
     }
 
     try {
       const response = await fetch(
         `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-          inputText
-        )}&langpair=${selectedLanguageFrom}|${selectedLanguageTo}`
-      );
-
-      const data = await response.json();
-      setTranslatedText(data.responseData.translatedText);
+          inputText,
+        )}&langpair=${selectedLanguageFrom}|${selectedLanguageTo}`,
+      )
+      const data = await response.json()
+      setTranslatedText(data.responseData.translatedText)
     } catch (error) {
-      console.error('Translation API error:', error);
-      setTranslatedText('Error translating text.');
+      console.error('Translation failed:', error)
+      setTranslatedText('Error occurred during translation.')
     }
-  };
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault();
-      handleTranslate();
+      e.preventDefault()
+      handleTranslate()
     }
-  };
+  }
 
   return (
     <div className="w-full flex flex-col gap-y-4 justify-center items-center px-6 sm:px-8 pt-12 pb-6 relative">
-      <button className="absolute top-4 right-4">
-        <i className="fa-solid fa-xmark text-xl text-gray-300" onClick={onClose}></i>
+      <button className="absolute top-4 right-4" onClick={onClose}>
+        <i className="fa-solid fa-xmark text-xl text-gray-300"></i>
       </button>
 
       <div className="w-full min-h-20 flex justify-center items-center px-4 bg-gradient-to-r from-[#b6f492] to-[#338b93] text-gray-700 rounded-lg">
         <div className="language cursor-pointer" onClick={() => handleLanguageClick('from')}>
-          {languages[selectedLanguageFrom] || 'English'}
+          {getLanguageName(selectedLanguageFrom)}
         </div>
         <i
           className="fa-solid fa-arrows-rotate text-2xl mx-8 cursor-pointer"
           onClick={handleSwapLanguages}
         ></i>
         <div className="language cursor-pointer" onClick={() => handleLanguageClick('to')}>
-          {languages[selectedLanguageTo] || 'English'}
+          {getLanguageName(selectedLanguageTo)}
         </div>
       </div>
 
@@ -155,7 +158,7 @@ const TranslatorApp: React.FC<TranslatorAppProps> = ({ onClose }) => {
         ></textarea>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TranslatorApp;
+export default TranslatorApp

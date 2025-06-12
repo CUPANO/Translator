@@ -98,3 +98,15 @@ export const languages = {
     'zu-ZA': 'Zulu',
 }
   
+
+export const language: Record<string, string> = {
+    en: 'English',
+    es: 'Spanish',
+    fr: 'French',
+    de: 'German',
+    it: 'Italian',
+    zh: 'Chinese',
+    ja: 'Japanese',
+    ar: 'Arabic'
+  };
+  
