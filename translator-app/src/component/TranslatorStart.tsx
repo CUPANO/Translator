@@ -1,4 +1,10 @@
-const TranslatorStart = ({ onStart }) => {
+import React from 'react';
+
+interface TranslatorStartProps {
+  onStart: () => void;
+}
+
+const TranslatorStart: React.FC<TranslatorStartProps> = ({ onStart }) => {
   return (
     <div className="w-full h-full flex flex-col justify-center items-center p-6 sm:p-12">
       <div className="w-full h-64 bg-gradient-to-l from-[#b6f492] to-[#338b93] rounded-t-full rounded-bl-full flex flex-col justify-center text-gray-700 pr-6">
@@ -17,7 +23,7 @@ const TranslatorStart = ({ onStart }) => {
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TranslatorStart
+export default TranslatorStart;
